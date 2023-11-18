@@ -1,3 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .form-input {
+    @apply text-black w-full px-4 py-2.5 transition-all transform shadow-none rounded-md bg-black bg-opacity-5;
+    @apply focus:outline-none focus:ring-1 ring-offset-current ring-offset-2 ring-gray-400;
+  }
+  .button-black {
+    @apply flex items-center px-5 py-2.5 font-medium text-white bg-black shadow-none rounded-md;
+    @apply hover:bg-gray-800 focus:outline-none transition-all transform active:scale-95;
+  }
+  .button-secondary {
+    @apply flex items-center px-5 py-2.5 font-medium text-black bg-black bg-opacity-10 shadow-none rounded-md;
+    @apply hover:bg-opacity-20 focus:outline-none transition-all transform active:scale-95;
+  }
+}
+
 html {
   box-sizing: border-box;
 }
