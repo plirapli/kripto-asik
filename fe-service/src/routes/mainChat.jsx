@@ -4,7 +4,7 @@ import {
   useLoaderData,
   useNavigation,
 } from 'react-router-dom';
-import { getContacts } from '../contacts';
+import { getContacts } from '../utils/contacts';
 
 export default function MainChat() {
   const { contacts } = useLoaderData();

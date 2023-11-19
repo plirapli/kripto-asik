@@ -1,18 +1,40 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import { postRegister } from '../utils/auth';
 
-const SignIn = () => {
-  const initialState = { username: '', password: '' };
+const SignUp = () => {
+  const initialState = {
+    name: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+  };
   // const { setProfile } = useProfile();
-  // const [error, setError] = useOutletContext();
+  const [info, setInfo] = useState({});
   const [inputData, setInputData] = useState(initialState);
   // const [isLoading, setIsLoading] = useState(false);
 
   // Submit process
   const submitHandler = (e) => {
     e.preventDefault();
+    const { name, username, password, confirmPassword } = inputData;
 
-    //   setIsLoading(true);
+    if (password === confirmPassword) {
+      postRegister({ name, username, password })
+        .then((data) => {
+          setInputData({ ...initialState });
+          setInfo({ ...data });
+        })
+        .catch((err) => {
+          setInfo({ ...err });
+        });
+    } else {
+      setInfo({
+        status: 'Error',
+        message: 'Password unmatch.',
+      });
+    }
+
     //   sendLogin(inputData)
     //     .then((data) => {
     //       const { token } = data;
@@ -45,10 +67,34 @@ const SignIn = () => {
   return (
     <div className='sm:max-w-sm flex bg-gray-100'>
       <div className='py-5 px-6 bg-white rounded-lg shadow'>
-        <h1 className='inline text-2xl font-semibold leading-none'>Login</h1>
-        <hr className='my-4' />
+        <h1 className='inline text-2xl font-semibold leading-none'>Register</h1>
+        <hr className='mt-4 mb-2' />
+
+        {info.message && (
+          <div
+            type='button'
+            className={`mt-4 mb-1 px-2.5 py-1.5 w-full text-sm rounded-md ${
+              info.status == 'Error'
+                ? 'text-red-400 bg-red-50 border border-red-400'
+                : 'text-green-400 bg-green-50 border border-green-400'
+            }`}
+          >
+            {info.message}
+          </div>
+        )}
+
         <form onSubmit={submitHandler}>
           <div>
+            <input
+              type='text'
+              onChange={(e) =>
+                setInputData((prev) => ({ ...prev, name: e.target.value }))
+              }
+              value={inputData.name}
+              placeholder='Full Name'
+              className='mt-2 form-input'
+              required
+            />
             <input
               type='text'
               onChange={(e) =>
@@ -57,6 +103,7 @@ const SignIn = () => {
               value={inputData.username}
               placeholder='Username'
               className='mt-2 form-input'
+              required
             />
             <input
               onChange={(e) =>
@@ -66,15 +113,29 @@ const SignIn = () => {
               type='password'
               placeholder='Passwords'
               className='mt-2.5 form-input'
+              required
+            />
+            <input
+              onChange={(e) =>
+                setInputData((prev) => ({
+                  ...prev,
+                  confirmPassword: e.target.value,
+                }))
+              }
+              value={inputData.confirmPassword}
+              type='password'
+              placeholder='Configm Password'
+              className='mt-2.5 form-input'
+              required
             />
           </div>
           <hr className='my-4' />
           <button type='submit' className='mt-4 w-full button-black'>
-            <span className='w-full'>Login</span>
+            <span className='w-full'>Register</span>
           </button>
-          <Link to='/register'>
+          <Link to='/login'>
             <button type='button' className='mt-2 w-full button-secondary'>
-              <span className='w-full'>Register</span>
+              <span className='w-full'>Login</span>
             </button>
           </Link>
         </form>
@@ -83,4 +144,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignUp;

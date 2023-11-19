@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useLoaderData } from 'react-router-dom';
-import { getContact } from '../contacts';
+import { getContact } from '../utils/contacts';
 
 export default function Chat() {
   const { contact } = useLoaderData();

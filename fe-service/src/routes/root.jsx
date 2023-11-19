@@ -4,6 +4,7 @@ import Index from '.';
 import MainChat, { loader as mainChatLoader } from './mainChat';
 import Chat, { loader as chatLoader } from './chat';
 import SignIn from './signIn';
+import SignUp from './signUp';
 
 const Root = () => {
   return (
@@ -11,7 +12,7 @@ const Root = () => {
       <div className='min-h-screen sm:p-6 flex sm:justify-center sm:items-center'>
         <Routes>
           <Route path='/login' element={<SignIn />} />
-          {/* <Route path='/register' element={<SignUp />} /> */}
+          <Route path='/register' element={<SignUp />} />
           <Route
             path='/'
             element={<MainChat />}

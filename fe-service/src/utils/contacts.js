@@ -1,4 +1,4 @@
-import { rest } from '../config/httpClient';
+import { rest } from '../../config/httpClient';
 
 const getContacts = async () =>
   rest
