@@ -16,11 +16,14 @@ const httpServer = app.listen(port, () => {
 const io = new Server(httpServer, {
   connectionStateRecovery: {}
 });
-const userRouter = require('./router/user');
+const usersRouter = require('./router/user');
+const filesRouter = require('./router/file')
 
 app.use(cors())
 app.use(express.json());
-app.use('/v1/users', userRouter);
+app.use('/v1/users', usersRouter);
+app.use('/v1/files/', filesRouter)
+app.use(express.static('public'))
 
 // app.get('/', (req, res) => {
 //   res.sendFile(join(`${__dirname}/client`, 'index.html'));

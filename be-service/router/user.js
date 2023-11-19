@@ -1,5 +1,11 @@
+require('dotenv').config();
 const router = require('express').Router();
 const connection = require('../config/database.js');
+
+const { nanoid } = require('nanoid')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const key = process.env.TOKEN_SECRET_KEY;
 
 // GET /users
 router.get("/", async (req, res) => {
@@ -43,6 +49,87 @@ router.get("/:username", async (req, res) => {
     })
   }
 })
+
+//Register new User
+router.post("/register", async (req, res, next) => {
+  try {
+    const { name, username, password } = req.body;
+
+    const salt = await bcrypt.genSalt(6);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const id = nanoid()
+
+    // Cek apakah username udah ada atau engga
+    const checkCommand = `SELECT id FROM user WHERE username = ?`;
+    const [[checkId]] = await connection.promise().query(checkCommand, [username])
+
+    if (checkId) {
+      const error = new Error(`Username ${username} already exist!`);
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Insert data ke tabel User
+    const inserCommand = `INSERT INTO user VALUES (?, ?, ?, ?)`;
+    await connection.promise().query(inserCommand, [id, name, username, hashedPassword]);
+
+    // Send response
+    res.status(201).json({
+      status: "Success",
+      message: "Register Successful",
+    })
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      status: "Error",
+      message: error.message
+    })
+  }
+});
+
+router.post("/login", async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+
+    // Cek user ada apa engga
+    const checkCommand = `SELECT * FROM user WHERE username = ?`;
+    const [[user]] = await connection.promise().query(checkCommand, [username])
+
+    if (!user) {
+      const error = new Error("Wrong email or password");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const checkPassword = await bcrypt.compare(password, user.password);
+
+    // Apabila password salah
+    if (!checkPassword) {
+      const error = new Error("Wrong email or password");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const token = jwt.sign({
+      id: user.id,
+      username: user.username
+    }, key, {
+      algorithm: "HS256",
+      expiresIn: "9h"
+    })
+
+    res.status(200).json({
+      status: "Success",
+      message: "Login Successful",
+      token
+    })
+
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      status: "Error",
+      message: error.message
+    })
+  }
+});
 
 /*
 // POST /todp
