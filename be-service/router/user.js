@@ -25,6 +25,36 @@ router.get("/", async (req, res) => {
   }
 })
 
+// GET user own profile (users/profile)
+router.get('/profile', async (req, res, next) => {
+  try {
+    let token;
+    const header = req.headers;
+    const authorization = header.authorization;
+
+    if (authorization !== undefined && authorization.startsWith("Bearer ")) {
+      token = authorization.substring(7);
+    } else {
+      const error = new Error("Login dulu 😠");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    const data = jwt.verify(token, key);
+
+    res.status(200).json({
+      status: "Success",
+      message: "Successfully get profile",
+      data
+    })
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      status: "Error",
+      message: error.message
+    })
+  }
+})
+
 // GET /users/:id
 router.get("/:username", async (req, res) => {
   try {
@@ -50,7 +80,7 @@ router.get("/:username", async (req, res) => {
   }
 })
 
-//Register new User
+// Register new User
 router.post("/register", async (req, res, next) => {
   try {
     const { name, username, password } = req.body;
@@ -111,10 +141,11 @@ router.post("/login", async (req, res, next) => {
 
     const token = jwt.sign({
       id: user.id,
+      name: user.name,
       username: user.username
     }, key, {
       algorithm: "HS256",
-      expiresIn: "9h"
+      expiresIn: "3d"
     })
 
     res.status(200).json({
@@ -130,6 +161,7 @@ router.post("/login", async (req, res, next) => {
     })
   }
 });
+
 
 /*
 // POST /todp

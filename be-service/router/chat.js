@@ -1,84 +1,40 @@
 const express = require('express');
 const router = express.Router();
 const connection = require('../config/database.js');
+const jwt = require('jsonwebtoken');
+const key = process.env.TOKEN_SECRET_KEY;
 
-// GET /todo
+// GET /chats
 router.get("/", async (req, res) => {
   try {
-    const command = `SELECT * FROM todo`;
+    let token;
+    const header = req.headers;
+    const authorization = header.authorization;
+
+    if (authorization !== undefined && authorization.startsWith("Bearer ")) {
+      token = authorization.substring(7);
+    } else {
+      const error = new Error("Login dulu 😠");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    jwt.verify(token, key)
+    const command = `SELECT c.id AS id, msg, is_encrypt, created_at, u.id AS user_id, name FROM chat c INNER JOIN user u ON u.id = sender`;
     const data = await connection.promise().query(command)
 
     res.status(200).json({
       status: "Success",
-      message: 'Successfully get all todos',
+      message: 'Successfully get all chats',
       data: data[0]
     })
+
   } catch (error) {
-    return res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       status: "Error",
-      message: err,
+      message: error.message,
     })
   }
 })
-
-// POST /todp
-router.post("/", async (req, res, next) => {
-  try {
-    const { judul, isi } = req.body;
-    const command = `INSERT INTO todo (judul, isi) VALUES (?, ?)`;
-    const [{ insertId }] = await connection.promise().query(command, [judul, isi]);
-
-    res.status(201).json({
-      status: "Success",
-      message: "Successfully create todo",
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "Error",
-      message: err,
-    });
-  }
-})
-
-// PUT /todo/:id
-router.put("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { judul, isi } = req.body;
-    const command = `UPDATE todo SET judul = ?, isi = ? WHERE id = ?`
-    const update = await connection.promise().query(command, [judul, isi, id]);
-
-    res.status(200).json({
-      status: "Success",
-      message: "Successfully update todo",
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "Error",
-      message: err,
-    });
-  }
-});
-
-// DELETE /todo/:id
-router.delete("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const command = `DELETE FROM todo WHERE id=?`;
-    const update = await connection.promise().query(command, [id]);
-
-    res.status(200).json({
-      status: "Success",
-      message: "Successfully delete todo",
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "Error",
-      message: err,
-    });
-  }
-});
-
-
 
 module.exports = router;

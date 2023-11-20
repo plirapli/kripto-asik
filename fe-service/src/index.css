@@ -36,6 +36,14 @@
     @apply text-black w-full px-3 py-2.5 transition-all transform shadow-none rounded-md bg-black bg-opacity-5;
     @apply focus:outline-none focus:ring-1 ring-offset-current ring-offset-2 ring-gray-400;
   }
+  .form-input-sm {
+    @apply text-black w-full px-2 py-1.5 text-sm transition-all transform shadow-none rounded-md bg-black bg-opacity-5;
+    @apply focus:outline-none focus:ring-1 ring-offset-current ring-offset-2 ring-gray-400;
+  }
+  .form-input-white-sm {
+    @apply text-black w-full px-2 py-1.5 text-sm transition-all transform shadow-none rounded-md bg-white;
+    @apply focus:outline-none focus:ring-1 ring-offset-current ring-offset-2 ring-gray-400;
+  }
   .button {
     @apply flex items-center px-5 py-2.5 font-medium shadow-none rounded-md;
     @apply focus:outline-none transition-all transform active:scale-95;

@@ -33,35 +33,7 @@ const SignUp = () => {
         message: 'Password unmatch.',
       });
     }
-
-    //   sendLogin(inputData)
-    //     .then((data) => {
-    //       const { token } = data;
-    //       // Reset state
-    //       // setError({});
-    //       setInputData(initialState);
-    //       // Store token to State && Local Storage
-    //       localStorage.setItem('user', JSON.stringify({ token }));
-    //       // Get user data
-    //       getUserOwnProfile()
-    //         .then((data) => {
-    //           setProfile({ ...data });
-    //           window.location.replace('/');
-    //         })
-    //         .catch((err) => console.log(err));
-    //     })
-    //     .catch((err) =>
-    //       setError({
-    //         status: err.status,
-    //         msg: err.message,
-    //       })
-    //     )
-    //     .finally(() => setIsLoading(false));
   };
-
-  // useEffect(() => {
-  //   if (error.status == 400) setError({ status: '', mesg: '' });
-  // }, []);
 
   return (
     <div className='min-h-screen sm:p-6 flex sm:justify-center sm:items-center'>

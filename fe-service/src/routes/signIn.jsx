@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { postLogin } from '../utils/auth';
+import { parseJwt, postLogin } from '../utils/auth';
+import { useProfile } from '../hooks/profile';
 
 const SignIn = () => {
   const initialState = { username: '', password: '' };
-  // const { setProfile } = useProfile();
+  const { setProfile } = useProfile();
   const [info, setInfo] = useState({});
   const [inputData, setInputData] = useState(initialState);
+  const navigate = useNavigate();
   // const [isLoading, setIsLoading] = useState(false);
 
   // Submit process
@@ -19,37 +21,15 @@ const SignIn = () => {
         setInputData({ ...initialState });
         setInfo({ status, message });
 
-        // Store token to State && Local Storage
+        // Store token to Local Storage
         localStorage.setItem('access_token', token);
+        setProfile({ ...parseJwt(token) });
+
+        navigate('/', { replace: true });
       })
       .catch((err) => {
         setInfo({ ...err });
       });
-    //   setIsLoading(true);
-    //   sendLogin(inputData)
-    //     .then((data) => {
-    //       const { token } = data;
-    //       // Reset state
-    //       // setError({});
-    //       setInputData(initialState);
-
-    //       // Store token to State && Local Storage
-    //       localStorage.setItem('user', JSON.stringify({ token }));
-    //       // Get user data
-    //       getUserOwnProfile()
-    //         .then((data) => {
-    //           setProfile({ ...data });
-    //           window.location.replace('/');
-    //         })
-    //         .catch((err) => console.log(err));
-    //     })
-    //     .catch((err) =>
-    //       setError({
-    //         status: err.status,
-    //         msg: err.message,
-    //       })
-    //     )
-    //     .finally(() => setIsLoading(false));
   };
 
   // useEffect(() => {

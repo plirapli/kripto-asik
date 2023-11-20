@@ -14,12 +14,12 @@ const Root = () => {
         <Routes>
           <Route path='/login' element={<SignIn />} />
           <Route path='/register' element={<SignUp />} />
-          <Route path='/' element={<MainChat />} errorElement={<ErrorPage />}>
+          <Route path='/' element={<MainChat />}>
             <Route index element={<Chat />} />
-            <Route path='chat/:username' element={<Chat />} />
             <Route path='file-upload' element={<FileUpload />} />
             <Route path='file-open' element={<FileOpen />} />
           </Route>
+          <Route path='/error-404' element={<ErrorPage />} />
         </Routes>
       </div>
     </div>

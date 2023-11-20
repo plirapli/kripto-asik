@@ -1,72 +1,61 @@
 require('dotenv').config();
 const express = require('express');
-const { createServer } = require('http');
 const { join } = require('node:path');
-const { Server } = require('socket.io');
+const { Server } = require('socket.io')
 const cors = require('cors')
 const connection = require('./config/database');
-
 const app = express();
+const server = require('http').createServer(app);
 const port = process.env.PORT || '3100';
 
-const httpServer = app.listen(port, () => {
+server.listen(port, () => {
   console.log('Server Connected on: http://localhost:' + port);
 });
 
-const io = new Server(httpServer, {
-  connectionStateRecovery: {}
+// Create an io server and allow for CORS from http://localhost:3000 with GET and POST methods
+const io = new Server(server, {
+  cors: {
+    origin: 'http://127.0.0.1:5173',
+    methods: ['GET', 'POST'],
+  },
 });
-const usersRouter = require('./router/user');
-const filesRouter = require('./router/file')
+
+const userRouter = require('./router/user');
+const chatRouter = require('./router/chat');
+const fileRouter = require('./router/file');
+const { nanoid } = require('nanoid');
 
 app.use(cors())
 app.use(express.json());
-app.use('/v1/users', usersRouter);
-app.use('/v1/files/', filesRouter)
+app.use('/v1/users', userRouter);
+app.use('/v1/files/', fileRouter)
+app.use('/v1/chats/', chatRouter)
 app.use(express.static('public'))
 
-// app.get('/', (req, res) => {
-//   res.sendFile(join(`${__dirname}/client`, 'index.html'));
-// });
+io.on('connection', async (socket) => {
+  console.log(`User connected ${socket.id}`);
 
-// io.on('connection', async (socket) => {
-//   console.log(`⚡: ${socket.id} user just connected!`);
-//   socket.on('disconnect', () => {
-//     console.log('🔥: A user disconnected');
-//   });
+  socket.on('chat', async (msgInfo) => {
+    const id = nanoid()
+    const { user, msg, key, isEncrypt } = msgInfo
 
-//   socket.on('chat message', async (msg) => {
-//     let insertedId;
-//     try {
+    try {
+      // Store the message in the database
+      const command = `INSERT INTO chat (id, msg, is_encrypt, passphrase, sender) VALUES (?, ?, ?, ?, ?)`;
+      const result = await connection.promise().query(command, [id, msg, isEncrypt, key, user]);
 
-//       // store the message in the database
-//       const command = `INSERT INTO pesan (isi) VALUES (?)`;
-//       const result = await connection.promise().query(command, [msg]);
-//       insertedId = result[0].insertId
-//     } catch (e) {
-//       // TODO handle the failure
-//       return;
-//     }
+      const checkUser = `SELECT created_at, name FROM chat c INNER JOIN user u ON u.id = sender WHERE c.id = ?`;
+      const [[{ created_at, name }]] = await connection.promise().query(checkUser, [id]);
 
-//     // include the offset with the message
-//     io.emit('chat message', msg, insertedId);
-//   });
+      socket.emit('chat', { id, user_id: user, name, msg, is_encrypt: isEncrypt, created_at });
+    } catch (e) {
+      // TODO handle the failure
+      console.log(e)
+      return;
+    }
+  });
 
-//   if (!socket.recovered) {
-//     // if the connection state recovery was not successful
-//     try {
-//       const command = `SELECT id, isi FROM pesan WHERE id > ?`;
-//       const data = await connection.promise().query(
-//         command,
-//         [socket.handshake.auth.serverOffset || 0]
-//       );
-
-//       data[0].forEach((row) => {
-//         socket.emit('chat message', row.isi, row.id);
-//       })
-//     } catch (e) {
-//       return
-//       // something went wrong
-//     }
-//   }
-// });
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
