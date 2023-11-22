@@ -1,16 +1,14 @@
 require('dotenv').config();
 const router = require('express').Router();
 const connection = require('../config/database.js');
-
 const { nanoid } = require('nanoid')
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const tokenKey = process.env.TOKEN_SECRET_KEY;
-
 const { upload, uploadKey } = require('../middleware/uploadFiles')
 const fs = require('fs');
 const path = require('path')
 const crypt = require("crypto-js");
+
+const tokenKey = process.env.TOKEN_SECRET_KEY;
 
 // Register new User
 router.post("/upload", upload, async (req, res, next) => {

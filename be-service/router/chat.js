@@ -2,7 +2,13 @@ const express = require('express');
 const router = express.Router();
 const connection = require('../config/database.js');
 const jwt = require('jsonwebtoken');
+const getToken = require('../utils/getToken.js');
+const crypt = require("crypto-js");
+const caesar = require('../utils/caesar');
+
 const key = process.env.TOKEN_SECRET_KEY;
+const caesarKey = process.env.CAESAR_SECRET_KEY
+
 
 // GET /chats
 router.get("/", async (req, res) => {
@@ -27,6 +33,41 @@ router.get("/", async (req, res) => {
       status: "Success",
       message: 'Successfully get all chats',
       data: data[0]
+    })
+
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({
+      status: "Error",
+      message: error.message,
+    })
+  }
+})
+
+// POST /chats/decrypt/:id
+router.post("/decrypt/:id", async (req, res) => {
+  try {
+    const token = getToken(req.headers)
+    if (token) {
+      jwt.verify(token, key)
+    } else {
+      const error = new Error("Login dulu 😠");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    const { id } = req.params
+    const { msgKey } = req.body
+
+    const command = `SELECT msg FROM chat WHERE id = ?`;
+    const [[{ msg }]] = await connection.promise().query(command, id)
+
+    const decryptedCaesar = caesar(msg, 26 - 12) // Didekripsi menggunakan Caesar Cipher
+    const decryptedRC4 = crypt.RC4Drop.decrypt(decryptedCaesar, msgKey).toString(crypt.enc.Utf8); // Didekripsi menggunakan RC4 Cipher
+
+    res.status(200).json({
+      status: "Success",
+      message: 'Chat decrypted',
+      data: decryptedRC4
     })
 
   } catch (error) {
