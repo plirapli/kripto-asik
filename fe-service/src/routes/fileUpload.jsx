@@ -171,7 +171,7 @@ const FileUpload = () => {
               </header>
 
               <h1 className='pt-4 pb-3 font-semibold sm:text-lg text-gray-900'>
-                To Upload 📁
+                Image to upload 📁
               </h1>
 
               <ul id='gallery' className='flex flex-1 gap-1.5 flex-wrap'>

@@ -57,19 +57,23 @@ router.post("/decrypt/:id", async (req, res) => {
 
     const { id } = req.params
     const { msgKey } = req.body
+    const command = `SELECT msg, passphrase FROM chat WHERE id = ?`;
+    const [[{ msg, passphrase }]] = await connection.promise().query(command, id)
 
-    const command = `SELECT msg FROM chat WHERE id = ?`;
-    const [[{ msg }]] = await connection.promise().query(command, id)
+    if (msgKey == passphrase) {
+      const decryptedCaesar = caesar(msg, 26 - 12) // Didekripsi menggunakan Caesar Cipher
+      const decryptedRC4 = crypt.RC4Drop.decrypt(decryptedCaesar, msgKey).toString(crypt.enc.Utf8); // Didekripsi menggunakan RC4 Cipher
 
-    const decryptedCaesar = caesar(msg, 26 - 12) // Didekripsi menggunakan Caesar Cipher
-    const decryptedRC4 = crypt.RC4Drop.decrypt(decryptedCaesar, msgKey).toString(crypt.enc.Utf8); // Didekripsi menggunakan RC4 Cipher
-
-    res.status(200).json({
-      status: "Success",
-      message: 'Chat decrypted',
-      data: decryptedRC4
-    })
-
+      res.status(200).json({
+        status: "Success",
+        message: 'Chat decrypted',
+        data: decryptedRC4
+      })
+    } else {
+      const error = new Error("Kunci tidak valid 😠");
+      error.statusCode = 403;
+      throw error;
+    }
   } catch (error) {
     return res.status(error.statusCode || 500).json({
       status: "Error",

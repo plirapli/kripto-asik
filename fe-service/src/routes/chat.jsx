@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react';
 import ChatBubble from '../components/chatBubble';
 import ChatBubbleEncrypt from '../components/chatBubbleEncrypt';
 import { useProfile } from '../hooks/profile';
-import { decrypChat, getChats } from '../utils/chat';
-import { useOutletContext } from 'react-router-dom';
+import { getChats } from '../utils/chat';
 import { socket } from '../socket';
 
 export default function Chat() {
@@ -26,10 +25,6 @@ export default function Chat() {
     e.preventDefault();
     socket.emit('chat', { ...inputMessage, isEncrypt: isChecked });
     setInputMessage({ ...initialState });
-  };
-
-  const decryptHandler = (msg) => {
-    decrypChat(msg.id, { msgKey: 'rafli' });
   };
 
   useEffect(() => {
@@ -56,11 +51,7 @@ export default function Chat() {
         {messages.length > 0 &&
           messages.map((message) =>
             message.is_encrypt ? (
-              <ChatBubbleEncrypt
-                key={message.id}
-                message={message}
-                decrypt={decryptHandler}
-              />
+              <ChatBubbleEncrypt key={message.id} message={message} />
             ) : (
               <ChatBubble key={message.id} message={message} />
             )
