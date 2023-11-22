@@ -7,6 +7,7 @@ const { upload, uploadKey } = require('../middleware/uploadFiles')
 const fs = require('fs');
 const path = require('path')
 const crypt = require("crypto-js");
+const getToken = require('../utils/getToken.js');
 
 const tokenKey = process.env.TOKEN_SECRET_KEY;
 
@@ -31,18 +32,13 @@ router.post("/", upload, async (req, res) => {
       const encoded = fs.readFileSync(filePath + file.filename, { encoding: 'base64' });
       const base64String = 'data:image/png;base64,' + encoded;
 
-      fs.appendFile('public/base64/' + Date.now() + '.txt', base64String, (err) => {
-        if (err) throw err;
-        console.log('Saved!');
-      });
-
       const ciphertext = crypt.AES.encrypt(base64String, key).toString(); // Encrypt
       const inserCommand = `INSERT INTO file VALUES (?, ?)`;
       await connection.promise().query(inserCommand, [id, ciphertext]);
 
       const keyFileName = 'key-' + id + '.bagus'
       fs.appendFile('public/' + keyFileName, ciphertext, (err) => {
-        if (err) throw err;
+        if (err) throw new Error('Gagal menyimpan file. ❌');
         console.log('Saved!');
       });
 
