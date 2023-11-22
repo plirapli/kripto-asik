@@ -9,7 +9,7 @@ import FileOpen from './fileOpen';
 
 const Root = () => {
   return (
-    <div className='min-h-screen px-4 bg-gray-100 w-full flex justify-center'>
+    <div className='min-h-screen bg-gray-100 w-full flex justify-center'>
       <div className='flex flex-col w-full max-w-screen-md min-h-full'>
         <Routes>
           <Route path='/login' element={<SignIn />} />

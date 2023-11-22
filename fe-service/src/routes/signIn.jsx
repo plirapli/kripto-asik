@@ -38,8 +38,8 @@ const SignIn = () => {
 
   return (
     <div className='min-h-screen sm:p-6 flex sm:justify-center sm:items-center'>
-      <div className='sm:max-w-sm flex bg-gray-100'>
-        <div className='py-5 px-6 bg-white rounded-lg shadow'>
+      <div className='w-full sm:max-w-sm flex bg-gray-100'>
+        <div className='pt-16 sm:pt-5 w-full py-5 px-6 bg-white rounded-lg shadow'>
           <h1 className='inline text-2xl font-semibold leading-none'>Login</h1>
           <hr className='mt-4 mb-2' />
           {info.message && (
@@ -67,6 +67,7 @@ const SignIn = () => {
                 value={inputData.username}
                 placeholder='Username'
                 className='mt-2 form-input'
+                required
               />
               <input
                 onChange={(e) =>
@@ -79,6 +80,7 @@ const SignIn = () => {
                 type='password'
                 placeholder='Passwords'
                 className='mt-2.5 form-input'
+                required
               />
             </div>
             <hr className='my-4' />

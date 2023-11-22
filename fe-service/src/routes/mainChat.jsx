@@ -25,7 +25,7 @@ export default function MainChat() {
 
   if (profile.username)
     return (
-      <>
+      <div className='px-3 flex flex-col w-full min-h-full'>
         <div className='flex items-end gap-2 mt-4 mb-2'>
           <div className='w-full'>
             <div className='text-gray-400 text-sm'>Hello,</div>
@@ -87,9 +87,9 @@ export default function MainChat() {
             </NavLink>
           </li>
         </ul>
-        <div className='flex-1 flex flex-col px-1' id='detail'>
+        <div className='flex-1 flex flex-col' id='detail'>
           <Outlet />
         </div>
-      </>
+      </div>
     );
 }
