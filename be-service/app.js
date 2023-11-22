@@ -11,10 +11,9 @@ const port = process.env.PORT || '3100';
 const caesarKey = process.env.CAESAR_SECRET_KEY;
 
 server.listen(port, () => {
-  console.log('Server Connected on: http://localhost:' + port);
+  console.log('Server Connected on: http://localhost:' + port + '/');
 });
 
-// Create an io server and allow for CORS from http://localhost:3000 with GET and POST methods
 const io = new Server(server, {
   cors: {
     origin: 'http://127.0.0.1:5173',
@@ -52,9 +51,7 @@ io.on('connection', async (socket) => {
     try {
       // Store the message in the database
       const command = `INSERT INTO chat (id, msg, is_encrypt, passphrase, sender) VALUES (?, ?, ?, ?, ?)`;
-      const result = await connection
-        .promise()
-        .query(command, [id, encryptedMsg, isEncrypt, key, user]);
+      await connection.promise().query(command, [id, encryptedMsg, isEncrypt, key, user]);
 
       // Ngambil beberapa parameter buat di-emit
       const checkUser = `SELECT created_at, name FROM chat c INNER JOIN user u ON u.id = sender WHERE c.id = ?`;

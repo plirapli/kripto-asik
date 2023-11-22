@@ -1,9 +1,9 @@
-import { rest } from "../../config/httpClient";
+import { authRest, rest } from "../../config/httpClient";
 
 const postImage = async (userData) =>
-  rest
+  authRest
     .post(
-      '/files/upload',
+      '/files/',
       userData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )
@@ -11,9 +11,9 @@ const postImage = async (userData) =>
     .catch(({ response }) => Promise.reject({ ...response.data }));
 
 const postKey = async (userData) =>
-  rest
+  authRest
     .post(
-      '/files/upload-key',
+      '/files/key',
       userData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )

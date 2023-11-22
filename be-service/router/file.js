@@ -10,9 +10,18 @@ const crypt = require("crypto-js");
 
 const tokenKey = process.env.TOKEN_SECRET_KEY;
 
-// Register new User
-router.post("/upload", upload, async (req, res, next) => {
+// Upload and encrypt images
+router.post("/", upload, async (req, res) => {
   try {
+    const token = getToken(req.headers)
+    if (token) {
+      jwt.verify(token, tokenKey)
+    } else {
+      const error = new Error("Login dulu 😠");
+      error.statusCode = 403;
+      throw error;
+    }
+
     if (req.file) {
       const key = process.env.AES_SECRET_KEY;
       const id = nanoid()
@@ -28,10 +37,6 @@ router.post("/upload", upload, async (req, res, next) => {
       });
 
       const ciphertext = crypt.AES.encrypt(base64String, key).toString(); // Encrypt
-      const bytes = crypt.AES.decrypt(ciphertext, key); // Decrypt
-      const originalText = bytes.toString(crypt.enc.Utf8);
-
-      // Insert data ke tabel User
       const inserCommand = `INSERT INTO file VALUES (?, ?)`;
       await connection.promise().query(inserCommand, [id, ciphertext]);
 
@@ -63,11 +68,19 @@ router.post("/upload", upload, async (req, res, next) => {
   }
 });
 
-router.post("/upload-key", uploadKey, async (req, res, next) => {
+router.post("/key", uploadKey, async (req, res) => {
+  const token = getToken(req.headers)
+  if (token) {
+    jwt.verify(token, tokenKey)
+  } else {
+    const error = new Error("Login dulu 😠");
+    error.statusCode = 403;
+    throw error;
+  }
+
   try {
     if (req.file) {
       const key = process.env.AES_SECRET_KEY;
-      const id = nanoid()
       const filePath = path.join(process.cwd(), 'uploaded_key/')
       const file = req.file;
 
@@ -92,13 +105,6 @@ router.post("/upload-key", uploadKey, async (req, res, next) => {
         error.statusCode = 400
         throw error;
       }
-
-      // const keyFileName = 'key-' + id + '.bagus'
-      // fs.appendFile('public/' + keyFileName, ciphertext, (err) => {
-      //   if (err) throw err;
-      //   console.log('Saved!');
-      // });
-
     } else {
       const error = new Error('Upload gambarnya dulu 😠')
       error.statusCode = 400
@@ -111,5 +117,25 @@ router.post("/upload-key", uploadKey, async (req, res, next) => {
     })
   }
 });
+
+router.delete('/key', async (req, res) => {
+  const token = getToken(req.headers)
+  if (token) {
+    jwt.verify(token, tokenKey)
+  } else {
+    const error = new Error("Login dulu 😠");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  try {
+    // Delete file yang udah diupload ke server public
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      status: "Error",
+      message: error.message
+    })
+  }
+})
 
 module.exports = router;

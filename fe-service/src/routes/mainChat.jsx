@@ -1,5 +1,4 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { getContacts } from '../utils/contacts';
 import { useProfile } from '../hooks/profile';
 import { useEffect } from 'react';
 import { autoSignIn, logout } from '../utils/auth';

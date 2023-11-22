@@ -12,7 +12,6 @@ export default function Chat() {
   const [isChecked, setIsChecked] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState(initialState);
-  const [isConnected, setIsConnected] = useState(false);
 
   const handleCheckboxChange = () => {
     if (inputMessage.key) {
